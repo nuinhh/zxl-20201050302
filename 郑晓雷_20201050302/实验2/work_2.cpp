@@ -6,7 +6,7 @@
 void init(void)
 {
     glClearColor (1.0, 1.0, 1.0, 0.0);  // 指定清空颜色
-    gluOrtho2D (0.0, 400.0.0, 0.0, 400.0);   //指定二维坐标系中被显示的区域
+    gluOrtho2D (0.0, 400.0, 0.0, 400.0);   //指定二维坐标系中被显示的区域
 }
 
 void setPixel(int x,int y){
