@@ -1,72 +1,116 @@
 #include <windows.h>
 #include <GL/glut.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-void setPixel(int x, int y)
-{
-    glPointSize(5.0f);
-    glBegin(GL_POINTS);
-    glVertex2i(x, y);
-    glEnd();
-    glFlush();
-}
-void lineBres(int x0, int y0, int xEnd, int yEnd)
-{
-    int dx = fabs(xEnd - x0), dy = fabs(yEnd - y0);
-    int p = 2 * dy - dx;
-    int twoDy = 2 * dy, twoDyMinusDx = 2 * (dy - dx);
-    int x, y;
-    if (x0 > xEnd)
-    {
-        x = xEnd;
-        y = yEnd;
-        xEnd = x0;
-    }
-    else
-    {
-        x = x0;
-        y = y0;
-    }
-    setPixel(x, y);
-    while (x < xEnd)
-    {
-        x++;
-        if (p < 0)
-            p += twoDy;
-        else
-        {
-            y++;
-            p += twoDyMinusDx;
-        }
-        setPixel(x, y);
-    }
-}
-
 void init(void)
 {
-    glClearColor(1.0, 1.0, 1.0, 0.0); //设置显示窗口颜色为白色
-    glMatrixMode(GL_PROJECTION);
-    gluOrtho2D(0.0, 200.0, 0.0, 150.0); //设置窗口位置
+    glClearColor (0.5, 0.8, 0.6, 0.0);  // 指定清空颜色（背景色）为白色
+    gluOrtho2D (-150.0, 150.0, -150.0, 150.0);   //指定二维坐标系中被显示的区域
 }
 
-void myDisplay()
-{
-    int x0, y0, xEnd, yEnd;
-    //接收起点终点位置
-    scanf_s("%d %d %d %d", &x0, &y0, &xEnd, &yEnd);
-    lineBres(x0, y0, xEnd, yEnd);
+void setPixel(int x,int y){
+	glPointSize(1.0f);
+	glBegin(GL_POINTS);
+		glVertex2i(x,y);
+	glEnd();
+	glFlush();
 }
 
-void main(int argc, char **argv)
+void myBreseham(int x0,int y0,int xEnd,int yEnd){
+    int i,x,y,dx,dy;
+    if(xEnd>=x0){
+        dx=xEnd-x0;
+        dy=yEnd-y0;
+        x=x0;y=y0;
+    }
+    else{
+        dx=x0-xEnd;
+        dy=y0-yEnd;
+        x=xEnd;y=yEnd;
+    }
+    float k=float(dy)/float(dx);
+    if(k>=0&&k<1){
+        float d=0.5-k;
+        for(i=0;i<fabs(dx);i++){
+            if(d<0){
+            x=x+1;
+            y=y+1;
+            d=d+1-k;
+            setPixel(x,y);
+            }
+            else{
+            x=x+1;
+            d=d-k;
+            setPixel(x,y);
+            }
+        }
+    }
+   if(k>=1){
+        float d=1-0.5*k;
+        for(i=0;i<fabs(dy);i++){
+            if(d<0){
+                y=y+1;
+                d=d+1;
+                setPixel(x,y);
+            }
+            else{
+                x=x+1;
+                y=y+1;
+                d=d+1-k;
+                setPixel(x,y);
+            }
+        }
+    }
+    if(k>-1&&k<0){
+        float d=-0.5-k;
+        for(i=0;i<fabs(dx);i++){
+            if(d<0){
+                x=x+1;
+                d=d-k;
+                setPixel(x,y);
+            }
+            else{
+                x=x+1;
+                y=y-1;
+                d=d-1-k;
+                setPixel(x,y);
+            }
+        }
+    }
+    if(k<=-1){
+        float d=-1-0.5*k;
+        for(i=0;i<fabs(dy);i++){
+            if(d<0){
+                x=x+1;
+                y=y-1;
+                d=d-1-k;
+                setPixel(x,y);
+            }
+            else{
+                y=y-1;
+                d=d-1;
+                setPixel(x,y);
+            }
+        }
+    }
+}
+
+void myDisplay(void){
+    glClear(GL_COLOR_BUFFER_BIT);// 清空显示窗口
+    glColor3f(0.0,0.0,0.0);// 指定前景色（当前绘制颜色）为黑色
+    myBreseham(-120,130,130,-12);
+    glFlush();// 使绘制立即反映到屏幕上
+}
+
+int main (int argc, char** argv)
 {
-    glutInit(&argc, argv);                       //初始化
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //设置显示模式
-    glutInitWindowPosition(50, 100);     //设置窗口位置
-    glutInitWindowSize(400, 300);       //设置窗口长宽
-    glutCreateWindow("Bresenham算法"); //设置标题
-    init();
-    glutDisplayFunc(&myDisplay);
-    glutMainLoop();
+    glutInit (&argc, argv);                         // 初始 GLUT.
+    glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB);   //设定显示模式
+    glutInitWindowPosition (500, 200);   // 设定窗口位置
+    glutInitWindowSize (300, 300);      // 设定窗口大小
+    glutCreateWindow ("Brisenham");
+    init( );                       // 进行一些初始化工作
+    glutDisplayFunc(&myDisplay);     // 指定绘制的回调函数
+    glutMainLoop ( );          // 进入无穷循环，等待事件处理
 }
